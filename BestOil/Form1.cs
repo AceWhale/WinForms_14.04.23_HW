@@ -4,12 +4,14 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+using Microsoft.VisualBasic;
 
 namespace _07._04._23_HW
 {
@@ -34,6 +36,23 @@ namespace _07._04._23_HW
             a98 = "А-98";
             string[] items = { a76, a80, a92, a95, a98 };
             comboBox1.Items.AddRange(items);
+            MenuItem menu = new MenuItem("Меню");
+            MenuItem exit = new MenuItem("Выход");
+            MenuItem reset = new MenuItem("Сброс");
+            MenuItem mSave = new MenuItem("Сохранение чека");
+            exit.Click += new EventHandler(ExitMethod);
+            reset.Click += new EventHandler(ResetMethod);
+            mSave.Click += new EventHandler(SaveMethod);
+            Menu = new MainMenu();
+            Menu.MenuItems.Add(menu);
+            Menu.MenuItems.Add(exit);
+            Menu.MenuItems.Add(reset);
+            menu.MenuItems.Add(mSave);
+            contextMenuStrip1 = new ContextMenuStrip();
+            contextMenuStrip1.Items.Add("Выход", null, ExitMethod);
+            contextMenuStrip1.Items.Add("Сброс", null, ResetMethod);
+            contextMenuStrip1.Items.Add("Сохранение", null, SaveMethod);
+            this.ContextMenuStrip = contextMenuStrip1;
         }
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -48,6 +67,54 @@ namespace _07._04._23_HW
                 textBox1.Text = "46,96";
             if (selectedValue == a98)
                 textBox1.Text = "49,60";
+            
+        }
+        private void ExitMethod(object sender, EventArgs e) => Application.Exit();
+        private void SaveMethod(object sender, EventArgs e)
+        {
+
+            string userName = Microsoft.VisualBasic.Interaction.InputBox("Введите ваше имя:", "Ввод имени");
+            MessageBox.Show("Ваше имя: " + userName);
+            using (StreamWriter sw = File.AppendText("Client.txt"))
+            {
+                sw.WriteLine();
+                sw.WriteLine($"Клиент: {userName}");
+                if (comboBox1.SelectedItem != null)
+                {
+                    sw.WriteLine($"Автозаправка\nБензин: {comboBox1.SelectedItem.ToString()}");
+                    sw.WriteLine($"Количество бензина: {textBox2.Text} л");
+                    sw.WriteLine($"К оплате: {label1.Text} грн");
+                }
+                if (label8.Text != "0.00")
+                {
+                    sw.WriteLine($"Мини-кафе");
+                    if (checkBox1.Checked)
+                        sw.WriteLine($"{checkBox1.Text} {label9.Text} {textBox4.Text} {label10.Text} {textBox11.Text}");
+                    if (checkBox2.Checked)
+                        sw.WriteLine($"{checkBox2.Text} {label9.Text} {textBox7.Text} {label10.Text} {textBox10.Text}");
+                    if (checkBox3.Checked)
+                        sw.WriteLine($"{checkBox3.Text} {label9.Text} {textBox6.Text} {label10.Text} {textBox9.Text}");
+                    if (checkBox4.Checked)
+                        sw.WriteLine($"{checkBox4.Text} {label9.Text} {textBox5.Text} {label10.Text} {textBox8.Text}");
+                    sw.WriteLine($"К оплате: {label8.Text} грн");
+                }
+                sw.WriteLine($"к оплате: {label7.Text} грн");
+            }
+        }
+        private void ResetMethod(object sender, EventArgs e)
+        {
+            textBox2.Text = null;
+            textBox3.Text = null;
+            radioButton1.Checked = false;
+            radioButton2.Checked = false;
+            checkBox1.Checked = false;
+            checkBox2.Checked = false;
+            checkBox3.Checked = false;
+            checkBox4.Checked = false;
+            label1.Text = "0.00";
+            label8.Text = "0.00";
+            label7.Text = "0.00";
+            comboBox1.SelectedIndex = -1;
         }
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
@@ -237,7 +304,7 @@ namespace _07._04._23_HW
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Оплата прошла успешно :)", "Оплата", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Оплата прошла успешно", "Оплата", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Exit();
 
         }
